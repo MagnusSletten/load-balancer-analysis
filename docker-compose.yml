@@ -1,0 +1,56 @@
+services:
+  app1:
+    build: ./app
+    expose: ["8000"]
+    ports: ["8001:8000"]
+    environment:
+      - GUNICORN_WORKERS=3
+
+  app2:
+    build: ./app
+    expose: ["8000"]
+    environment:
+      - GUNICORN_WORKERS=3
+
+  app3:
+    build: ./app
+    expose: ["8000"]
+    environment:
+      - GUNICORN_WORKERS=3
+
+  app4:
+    build: ./app
+    expose: ["8000"]
+    environment:
+      - GUNICORN_WORKERS=3
+
+  app5:
+    build: ./app
+    expose: ["8000"]
+    environment:
+      - GUNICORN_WORKERS=3
+
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on: [app1, app2, app3, app4, app5]
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8082:8082"  # round-robin
+      - "8083:8083"  # least-connections
+
+  sender:
+    build: ./sender
+    depends_on: [nginx]
+    environment:
+      - TARGET_RR=http://nginx:8082/calculate
+      - TARGET_LC=http://nginx:8083/calculate
+      - DURATION_SEC=10            # total test time
+      - JOB_MODE=cycle             # or "weighted"
+      - JOBS=A,B,C,D,E
+      - JOB_WEIGHTS=C:6,E:3,A:1   # if JOB_MODE=weighted
+
+      # batching controls
+      - BATCH_SIZE=400             # requests per burst
+      - BATCH_INTERVAL_SEC=0.5     # pause between bursts
+      - REQUEST_TIMEOUT_SEC=120    # safety for slow runs
