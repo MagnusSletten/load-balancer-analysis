@@ -5,19 +5,19 @@ app = Flask(__name__)
 
 # Define per-job iterations (tune to your box)
 JOB_ITERS = {
-    "A": 7_500_0000,
-    "B": 4_400_000,
-    "C": 3_520_000,
-    "D": 2_820_000,
-    "E": 1_260_000,
-    "F": 1_810_000,
-    "G": 1_450_000,
+    "A": 130_000_000,
+    "B": 40_000_000,
+    "C": 20_000_000,
+    "D": 10_000_000,
+    "E": 5_000_000,
+    "F": 2_500_000,
+    "G": 1_250_000,
     "H": 1_160_000,
     "I":   930_000,
-    "J":   744_000,
+    "J":   1_500_000,
     "K":   595_000,
     "L":   476_000,
-    "M":   381_000,
+    "M":   520_000,
     "N":   305_000,
     "O":   244_000,
     "P":   195_000,
@@ -27,7 +27,7 @@ JOB_ITERS = {
     "T":    80_000,
 }
 
-JOB_FACTOR = float(os.getenv("JOB_FACTOR", "0.2"))
+JOB_FACTOR = float(os.getenv("JOB_FACTOR", "1"))
 JOB_ITERS = {k: max(1, int(v * JOB_FACTOR)) for k, v in JOB_ITERS.items()}
 
 def do_work(iters: int):
