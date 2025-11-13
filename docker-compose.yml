@@ -5,30 +5,50 @@ services:
     ports: ["8001:8000"]
     environment:
       - GUNICORN_WORKERS=1
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
 
   app2:
     build: ./app
     expose: ["8000"]
     environment:
       - GUNICORN_WORKERS=1
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
 
   app3:
     build: ./app
     expose: ["8000"]
     environment:
       - GUNICORN_WORKERS=1
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
 
   app4:
     build: ./app
     expose: ["8000"]
     environment:
       - GUNICORN_WORKERS=1
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
 
   app5:
     build: ./app
     expose: ["8000"]
     environment:
       - GUNICORN_WORKERS=1
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
 
   nginx:
     image: nginx:1.27-alpine
@@ -49,19 +69,20 @@ services:
       # steady-stream test (unchanged)
       - DURATION_SEC=60
       - JOB_MODE=cycle            # or "weighted"
-      - JOBS=A,B,C,D
+      - JOBS=A,B,C
       - JOB_WEIGHTS=C:6,E:3,A:1   # only used if JOB_MODE=weighted
       - REQUEST_TIMEOUT_SEC=120
       - CONCURRENCY=5            # threads for both stream + batch
-      - TARGET_RPS=0              # 0 = unlimited
+      - TARGET_RPS=0 
+                 # 0 = unlimited
 
       # Batched-burst test (fixed total requests per batch)
       - RUN_STREAM=1
       - RUN_BATCH=1
-      - BATCH_COUNT=7            # number of batches to run
-      - BATCH_REQUESTS=8        # <-- total requests per batch (large)
+      - BATCH_COUNT=5            # number of batches to run
+      - BATCH_REQUESTS=25        # <-- total requests per batch (large)
       # (BATCH_MIN/BATCH_MAX are no longer needed and can be removed)
 
       # Optional niceties
       - START_DELAY_SEC=12
-      - COOLDOWN_SEC=20
+      - COOLDOWN_SEC=15

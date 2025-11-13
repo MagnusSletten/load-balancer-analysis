@@ -3,9 +3,7 @@ import os, time, requests, statistics as stats, random, threading
 from collections import defaultdict, Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Environment / defaults
-# ──────────────────────────────────────────────────────────────────────────────
+#Env vars:
 TARGETS = [
     ("LC", os.getenv("TARGET_LC", "http://nginx:8083/calculate")),
     ("RR", os.getenv("TARGET_RR", "http://nginx:8082/calculate")),
@@ -35,9 +33,7 @@ BATCH_REQUESTS = int(os.getenv("BATCH_REQUESTS", "0"))     # 0 = use legacy rang
 
 CAPTURE_UPSTREAM = int(os.getenv("CAPTURE_UPSTREAM", "0")) # set to 1 if nginx adds X-Upstream header
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Jobs & weights
-# ──────────────────────────────────────────────────────────────────────────────
+#Jobs
 JOBS = [j.strip().upper() for j in JOBS_STR.split(",") if j.strip()]
 W = {}
 if WEIGHTS_STR:
@@ -45,9 +41,7 @@ if WEIGHTS_STR:
         k, v = tok.split(":")
         W[k.strip().upper()] = float(v)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Utilities
-# ──────────────────────────────────────────────────────────────────────────────
+#Utils
 _tls = threading.local()
 def get_session():
     if not hasattr(_tls, "s"):
@@ -135,9 +129,7 @@ def _print_stream_summary(name, results, per_job, fails, label):
     if label:
         print(label)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Steady-stream runner (closed-loop with optional open-loop pacing)
-# ──────────────────────────────────────────────────────────────────────────────
+# Runs jobs as a steady stream
 def run_case(name, url):
     pick_job = make_picker()
     results = []
@@ -214,9 +206,8 @@ def run_case(name, url):
         )
     _print_stream_summary(name, results, per_job, fails, label)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Batched-burst runner (open-loop bursts, measure per-batch wall time)
-# ──────────────────────────────────────────────────────────────────────────────
+
+# Runs jobs in batches of requests
 def run_batched_case(name, url, batches, batch_requests=50, concurrency=10):
     assert batches > 0 and batch_requests >= 1 and concurrency >= 1
     pick_job = make_picker()
@@ -225,6 +216,7 @@ def run_batched_case(name, url, batches, batch_requests=50, concurrency=10):
     total_ok = total_fail = 0
 
     for _ in range(batches):
+        print(f"Batch number {_}")
         t0 = time.perf_counter()
         ok = fail = 0
         deadline = time.perf_counter() + REQ_TIMEOUT
@@ -259,9 +251,7 @@ def run_batched_case(name, url, batches, batch_requests=50, concurrency=10):
     for idx, (bt, ok, fail) in enumerate(zip(batch_times, per_batch_ok, per_batch_fail), start=1):
         print(f"   - batch {idx:02d}: K={batch_requests} time={bt:.3f}s ok={ok} fail={fail}")
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Warmup (small burst to establish keepalives)
-# ──────────────────────────────────────────────────────────────────────────────
+# Initial warm up establishing connections
 def warmup(url):
     if WARMUP_K <= 0:
         return

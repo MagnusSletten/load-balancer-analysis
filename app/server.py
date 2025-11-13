@@ -27,7 +27,7 @@ JOB_ITERS = {
     "T":    80_000,
 }
 
-JOB_FACTOR = float(os.getenv("JOB_FACTOR", "1"))
+JOB_FACTOR = float(os.getenv("JOB_FACTOR", "0.1"))
 JOB_ITERS = {k: max(1, int(v * JOB_FACTOR)) for k, v in JOB_ITERS.items()}
 
 def do_work(iters: int):
