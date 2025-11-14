@@ -1,0 +1,17 @@
+{
+    # Optional: more verbose logs for debugging
+    # debug
+}
+
+# Random load balancing (equivalent to api_rr with 'random')
+:8082 {
+    reverse_proxy /calculate* app1:8000 app2:8000 app3:8000 app4:8000 app5:8000 {
+        lb_policy random
+    }
+}
+
+:8083 {
+    reverse_proxy /calculate* app1:8000 app2:8000 app3:8000 app4:8000 app5:8000 {
+        lb_policy least_conn
+    }
+}

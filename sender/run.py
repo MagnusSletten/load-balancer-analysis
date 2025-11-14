@@ -5,17 +5,17 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 #Env vars:
 TARGETS = [
-    ("LC", os.getenv("TARGET_LC", "http://nginx:8083/calculate")),
-    ("RR", os.getenv("TARGET_RR", "http://nginx:8082/calculate")),
+    ("LC", os.getenv("TARGET_LC", "http://caddy:8082/calculate")),
+    ("RR", os.getenv("TARGET_RR", "http://caddy:8083/calculate")),
 ]
 
-DURATION       = int(os.getenv("DURATION_SEC", "18"))      # window for steady-stream mode
+DURATION       = int(os.getenv("DURATION_SEC", "18"))      
 MODE           = os.getenv("JOB_MODE", "cycle")            # "cycle" | "weighted"
 JOBS_STR       = os.getenv("JOBS", "A,B,C,D,E")
 WEIGHTS_STR    = os.getenv("JOB_WEIGHTS", "")              # e.g. "A:6,C:3,E:1"
 REQ_TIMEOUT    = float(os.getenv("REQUEST_TIMEOUT_SEC", "120"))
 
-CONCURRENCY    = int(os.getenv("CONCURRENCY", "12"))       # steady-stream: in-flight requests target
+CONCURRENCY    = int(os.getenv("CONCURRENCY", "12"))       # number of requests up at the same time
 TARGET_RPS     = float(os.getenv("TARGET_RPS", "0"))       # 0 = unlimited; else open-loop pacing (req/s)
 
 START_DELAY    = float(os.getenv("START_DELAY_SEC", "6"))  # delay before first run
@@ -261,9 +261,7 @@ def warmup(url):
         for _ in as_completed(futs):
             pass
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Main
-# ──────────────────────────────────────────────────────────────────────────────
+
 if __name__ == "__main__":
     print(f"DURATION={DURATION}s; jobs={JOBS}; mode={MODE}; "
           f"weights={(W if MODE=='weighted' else '-')}; "
