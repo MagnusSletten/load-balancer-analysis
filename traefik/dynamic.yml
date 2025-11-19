@@ -1,0 +1,21 @@
+# traefik/dynamic.yml
+http:
+  routers:
+    calculate:
+      rule: "PathPrefix(`/calculate`)"
+      entryPoints:
+        - web
+      service: calculate-svc
+
+  services:
+    calculate-svc:
+      loadBalancer:
+        # <- this is the important bit
+        strategy: "leasttime"
+        servers:
+          - url: "http://app1:8000"
+          - url: "http://app2:8000"
+          - url: "http://app3:8000"
+          - url: "http://app4:8000"
+          - url: "http://app5:8000"
+

@@ -3,11 +3,32 @@ import os, time, requests, statistics as stats, random, threading
 from collections import defaultdict, Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-#Env vars:
-TARGETS = [
-    ("LC", os.getenv("TARGET_LC", "http://caddy:8082/calculate")),
-    ("RR", os.getenv("TARGET_RR", "http://caddy:8083/calculate")),
-]
+
+TARGETS = []
+
+def add_target(name, envvar):
+    url = os.getenv(envvar)
+    if url:
+        TARGETS.append((name, url))
+
+# Nginx
+add_target("NGINX_RR", "TARGET_RR_NGINX")
+add_target("NGINX_LC", "TARGET_LC_NGINX")
+
+# Caddy
+add_target("CADDY_RR", "TARGET_RR_CADDY")
+add_target("CADDY_LC", "TARGET_LC_CADDY")
+
+# Traefik
+add_target("TRAEFIK_RR", "TARGET_RR_TRAEFIK")
+add_target("TRAEFIK_LC", "TARGET_LC_TRAEFIK")
+
+# Fallback defaults if nothing is provided
+if not TARGETS:
+    TARGETS = [
+        ("RR", os.getenv("TARGET_RR", "http://caddy:8082/calculate")),
+        ("LC", os.getenv("TARGET_LC", "http://caddy:8083/calculate")),
+    ]
 
 DURATION       = int(os.getenv("DURATION_SEC", "18"))      
 MODE           = os.getenv("JOB_MODE", "cycle")            # "cycle" | "weighted"
@@ -216,7 +237,6 @@ def run_batched_case(name, url, batches, batch_requests=50, concurrency=10):
     total_ok = total_fail = 0
 
     for _ in range(batches):
-        print(f"Batch number {_}")
         t0 = time.perf_counter()
         ok = fail = 0
         deadline = time.perf_counter() + REQ_TIMEOUT

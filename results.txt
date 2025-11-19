@@ -1,0 +1,188 @@
+caddy
+
+sender-1  | [startup] waiting 12.0s before first run…                                                                                                                                       
+sender-1  | [LC] RPS=2.9 p50=1.032s p95=3.574s p99=3.592s n=176 (concurrency=5, target_rps=-, mode=cycle, fails=5)                                                                          
+sender-1  |    - job A: n=58 p50=3.478s p95=3.591s                                                                                                                                          
+sender-1  |    - job B: n=59 p50=1.032s p95=1.105s
+sender-1  |    - job C: n=59 p50=0.525s p95=0.576s                                                                                                                                          
+                                                                                                                                                              
+sender-1  | [LC BATCH] batches=5 batch_requests=25 concurrency=5 sum=50.030s p50=9.614s p95=10.714s worst=10.714s reqs=125 ok=125 fail=0 effRPS=2.50                                        
+sender-1  |    - batch 01: K=25 time=10.714s ok=25 fail=0                                                                                                                                   
+sender-1  |    - batch 02: K=25 time=9.585s ok=25 fail=0                                                                                                                                    
+sender-1  |    - batch 03: K=25 time=9.614s ok=25 fail=0
+sender-1  |    - batch 04: K=25 time=10.524s ok=25 fail=0                                                                                                                                   
+sender-1  |    - batch 05: K=25 time=9.593s ok=25 fail=0                                                                                                                                    
+sender-1  | [cooldown] sleeping 15.0s to let backends drain…
+sender-1  | [RR] RPS=1.9 p50=2.395s p95=5.636s p99=8.027s n=117 (concurrency=5, target_rps=-, mode=cycle, fails=5)
+sender-1  |    - job A: n=39 p50=3.374s p95=5.875s
+sender-1  |    - job B: n=39 p50=1.010s p95=5.266s
+sender-1  |    - job C: n=39 p50=0.974s p95=4.295s
+
+sender-1  | [RR BATCH] batches=5 batch_requests=25 concurrency=5 sum=80.636s p50=16.423s p95=18.068s worst=18.068s reqs=125 ok=125 fail=0 effRPS=1.55
+sender-1  |    - batch 01: K=25 time=18.068s ok=25 fail=0
+sender-1  |    - batch 02: K=25 time=15.804s ok=25 fail=0
+sender-1  |    - batch 03: K=25 time=13.560s ok=25 fail=0
+sender-1  |    - batch 04: K=25 time=16.423s ok=25 fail=0
+sender-1  |    - batch 05: K=25 time=16.783s ok=25 fail=0
+sender-1 exited with code 0
+
+nginx 
+
+sender-1  | DURATION=60s; jobs=['A', 'B', 'C']; mode=cycle; weights=-; concurrency=5; target_rps=-; timeout=120.0s                                                                          
+sender-1  | BATCH_COUNT=5 batch_requests=25 concurrency=5
+sender-1  | [startup] waiting 12.0s before first run…                                                                                                                                       
+sender-1  | [LC] RPS=2.9 p50=1.082s p95=3.613s p99=3.684s n=172 (concurrency=5, target_rps=-, mode=cycle, fails=5)                                                                          
+sender-1  |    - job A: n=56 p50=3.569s p95=3.680s                                                                                                                                          
+sender-1  |    - job B: n=58 p50=1.082s p95=1.108s                                                                                                                                          
+sender-1  |    - job C: n=58 p50=0.526s p95=0.590s                                                                                                                                          
+                                                                                                                                                              
+sender-1  | [LC BATCH] batches=5 batch_requests=25 concurrency=5 sum=51.510s p50=10.022s p95=11.084s worst=11.084s reqs=125 ok=125 fail=0 effRPS=2.43                                       
+sender-1  |    - batch 01: K=25 time=11.084s ok=25 fail=0                                                                                                                                   
+sender-1  |    - batch 02: K=25 time=10.022s ok=25 fail=0                                                                                                                                   
+sender-1  |    - batch 03: K=25 time=9.725s ok=25 fail=0
+sender-1  |    - batch 04: K=25 time=10.789s ok=25 fail=0                                                                                                                                   
+sender-1  |    - batch 05: K=25 time=9.891s ok=25 fail=0                                                                                                                                    
+sender-1  | [cooldown] sleeping 15.0s to let backends drain…                                                                                                                                
+sender-1  | [RR] RPS=1.8 p50=2.817s p95=6.510s p99=7.286s n=107 (concurrency=5, target_rps=-, mode=cycle, fails=5)                                                                          
+sender-1  |    - job A: n=35 p50=3.476s p95=6.881s                                                                                                                                          
+sender-1  |    - job B: n=36 p50=1.026s p95=4.885s
+sender-1  |    - job C: n=36 p50=0.516s p95=3.903s                                                                                                                                          
+                                                                                                                                                             
+sender-1  | [RR BATCH] batches=5 batch_requests=25 concurrency=5 sum=81.086s p50=16.024s p95=18.884s worst=18.884s reqs=125 ok=125 fail=0 effRPS=1.54                                       
+sender-1  |    - batch 01: K=25 time=13.574s ok=25 fail=0                                                                                                                                   
+sender-1  |    - batch 02: K=25 time=14.545s ok=25 fail=0                                                                                                                                   
+sender-1  |    - batch 03: K=25 time=18.884s ok=25 fail=0                                                                                                                                   
+sender-1  |    - batch 04: K=25 time=18.059s ok=25 fail=0
+sender-1  |    - batch 05: K=25 time=16.024s ok=25 fail=0                                                                                                                                   
+sender-1 exited with code 0
+
+Jobber, 8,4,2 ratio
+
+
+caddy:
+
+caddy-1   | {"level":"info","ts":1763220222.380442,"logger":"tls","msg":"finished cleaning storage units"}                                                                                  
+sender-1  | DURATION=60s; jobs=['A', 'B', 'C']; mode=cycle; weights=-; concurrency=5; target_rps=-; timeout=120.0s
+sender-1  | BATCH_COUNT=5 batch_requests=25 concurrency=5
+sender-1  | [startup] waiting 12.0s before first run…                                                                                                                                       
+sender-1  | [LC] RPS=4.0 p50=1.030s p95=2.162s p99=2.188s n=240 (concurrency=5, target_rps=-, mode=cycle, fails=5)                                                                          
+sender-1  |    - job A: n=79 p50=2.102s p95=2.171s                                                                                                                                          
+sender-1  |    - job B: n=80 p50=1.030s p95=1.100s                                                                                                                                          
+sender-1  |    - job C: n=81 p50=0.515s p95=0.578s                                                                                                                                          
+
+sender-1  | [LC BATCH] batches=5 batch_requests=25 concurrency=5 sum=35.289s p50=7.129s p95=7.297s worst=7.297s reqs=125 ok=125 fail=0 effRPS=3.54                                          
+sender-1  |    - batch 01: K=25 time=7.297s ok=25 fail=0                                                                                                                                    
+sender-1  |    - batch 02: K=25 time=7.129s ok=25 fail=0                                                                                                                                    
+sender-1  |    - batch 03: K=25 time=6.731s ok=25 fail=0                                                                                                                                    
+sender-1  |    - batch 04: K=25 time=7.241s ok=25 fail=0                                                                                                                                    
+sender-1  |    - batch 05: K=25 time=6.891s ok=25 fail=0                                                                                                                                    
+sender-1  | [cooldown] sleeping 15.0s to let backends drain…
+sender-1  | [RR] RPS=2.6 p50=1.965s p95=4.194s p99=4.970s n=156 (concurrency=5, target_rps=-, mode=cycle, fails=5)                                                                          
+sender-1  |    - job A: n=51 p50=2.177s p95=4.486s
+sender-1  |    - job B: n=52 p50=1.582s p95=4.190s
+sender-1  |    - job C: n=53 p50=0.516s p95=2.688s
+
+sender-1  | [RR BATCH] batches=5 batch_requests=25 concurrency=5 sum=53.659s p50=10.448s p95=12.729s worst=12.729s reqs=125 ok=125 fail=0 effRPS=2.33
+sender-1  |    - batch 01: K=25 time=11.037s ok=25 fail=0
+sender-1  |    - batch 02: K=25 time=9.631s ok=25 fail=0
+sender-1  |    - batch 03: K=25 time=9.814s ok=25 fail=0
+sender-1  |    - batch 04: K=25 time=10.448s ok=25 fail=0
+sender-1  |    - batch 05: K=25 time=12.729s ok=25 fail=0
+sender-1 exited with code 0
+
+nginx
+nginx-1   | /docker-entrypoint.sh: Configuration complete; ready for start up
+sender-1  | DURATION=60s; jobs=['A', 'B', 'C']; mode=cycle; weights=-; concurrency=5; target_rps=-; timeout=120.0s                                                                          
+sender-1  | BATCH_COUNT=5 batch_requests=25 concurrency=5
+sender-1  | [startup] waiting 12.0s before first run…                                                                                                                                       
+sender-1  | [LC] RPS=4.0 p50=1.037s p95=2.124s p99=2.174s n=243 (concurrency=5, target_rps=-, mode=cycle, fails=5)                                                                          
+sender-1  |    - job A: n=80 p50=2.098s p95=2.170s                                                                                                                                          
+sender-1  |    - job B: n=81 p50=1.041s p95=1.090s
+sender-1  |    - job C: n=82 p50=0.511s p95=0.571s                                                                                                                                          
+                                                                                                                                                           
+sender-1  | [LC BATCH] batches=5 batch_requests=25 concurrency=5 sum=34.951s p50=6.770s p95=7.378s worst=7.378s reqs=125 ok=125 fail=0 effRPS=3.58                                          
+sender-1  |    - batch 01: K=25 time=7.378s ok=25 fail=0                                                                                                                                    
+sender-1  |    - batch 02: K=25 time=6.726s ok=25 fail=0
+sender-1  |    - batch 03: K=25 time=6.728s ok=25 fail=0                                                                                                                                    
+sender-1  |    - batch 04: K=25 time=7.350s ok=25 fail=0                                                                                                                                    
+sender-1  |    - batch 05: K=25 time=6.770s ok=25 fail=0
+sender-1  | [cooldown] sleeping 15.0s to let backends drain…                                                                                                                                
+sender-1  | [RR] RPS=2.6 p50=1.977s p95=3.604s p99=4.479s n=155 (concurrency=5, target_rps=-, mode=cycle, fails=5)                                                                          
+sender-1  |    - job A: n=52 p50=2.102s p95=3.994s                                                                                                                                          
+sender-1  |    - job B: n=51 p50=1.647s p95=4.010s
+sender-1  |    - job C: n=52 p50=0.522s p95=3.151s                                                                                                                                          
+
+sender-1  | [RR BATCH] batches=5 batch_requests=25 concurrency=5 sum=55.054s p50=11.287s p95=14.239s worst=14.239s reqs=125 ok=125 fail=0 effRPS=2.27                                       
+sender-1  |    - batch 01: K=25 time=14.239s ok=25 fail=0                                                                                                                                   
+sender-1  |    - batch 02: K=25 time=11.287s ok=25 fail=0                                                                                                                                   
+sender-1  |    - batch 03: K=25 time=8.254s ok=25 fail=0
+sender-1  |    - batch 04: K=25 time=9.593s ok=25 fail=0                                                                                                                                    
+sender-1  |    - batch 05: K=25 time=11.682s ok=25 fail=0                                                                                                                                   
+sender-1 exited with code 0
+
+caddy-1   | {"level":"info","ts":1763231575.3373463,"logger":"tls","msg":"finished cleaning storage units"}
+sender-1  | DURATION=60s; jobs=['A', 'B', 'C']; mode=cycle; weights=-; concurrency=5; target_rps=-; timeout=120.0s                                                                          
+sender-1  | BATCH_COUNT=10 batch_requests=50 concurrency=5
+sender-1  | [startup] waiting 12.0s before first run…                                                                                                                                       
+sender-1  | [LC BATCH] batches=10 batch_requests=50 concurrency=5 sum=131.971s p50=13.309s p95=13.479s worst=13.479s reqs=500 ok=500 fail=0 effRPS=3.79                                     
+sender-1  |    - batch 01: K=50 time=13.400s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 02: K=50 time=13.479s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 03: K=50 time=12.742s ok=50 fail=0
+sender-1  |    - batch 04: K=50 time=13.309s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 05: K=50 time=13.376s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 06: K=50 time=12.795s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 07: K=50 time=13.370s ok=50 fail=0
+sender-1  |    - batch 08: K=50 time=13.440s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 09: K=50 time=12.769s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 10: K=50 time=13.291s ok=50 fail=0                                                                                                                                   
+sender-1  | [cooldown] sleeping 15.0s to let backends drain…                                                                                                                                
+
+sender-1  | [RR BATCH] batches=10 batch_requests=50 concurrency=5 sum=208.447s p50=20.651s p95=25.718s worst=25.718s reqs=500 ok=500 fail=0 effRPS=2.40                                     
+sender-1  |    - batch 01: K=50 time=17.488s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 02: K=50 time=20.651s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 03: K=50 time=21.102s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 04: K=50 time=19.109s ok=50 fail=0
+sender-1  |    - batch 05: K=50 time=19.950s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 06: K=50 time=19.123s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 07: K=50 time=21.006s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 08: K=50 time=25.718s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 09: K=50 time=22.189s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 10: K=50 time=22.112s ok=50 fail=0
+sender-1 exited with code 0
+
+nginx-1   | /docker-entrypoint.sh: Configuration complete; ready for start up                                                                                                               
+sender-1  | DURATION=60s; jobs=['A', 'B', 'C']; mode=cycle; weights=-; concurrency=5; target_rps=-; timeout=120.0s
+sender-1  | BATCH_COUNT=10 batch_requests=50 concurrency=5
+sender-1  | [startup] waiting 12.0s before first run…                                                                                                                                                                                                                                                                                                     
+sender-1  | [LC BATCH] batches=10 batch_requests=50 concurrency=5 sum=136.079s p50=13.683s p95=13.891s worst=13.891s reqs=500 ok=500 fail=0 effRPS=3.67                                     
+sender-1  |    - batch 01: K=50 time=13.632s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 02: K=50 time=13.686s ok=50 fail=0
+sender-1  |    - batch 03: K=50 time=13.182s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 04: K=50 time=13.811s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 05: K=50 time=13.784s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 06: K=50 time=13.406s ok=50 fail=0
+sender-1  |    - batch 07: K=50 time=13.683s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 08: K=50 time=13.746s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 09: K=50 time=13.257s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 10: K=50 time=13.891s ok=50 fail=0
+sender-1  | [cooldown] sleeping 15.0s to let backends drain…                                                                                                                                
+
+sender-1  | [RR BATCH] batches=10 batch_requests=50 concurrency=5 sum=210.604s p50=19.831s p95=24.853s worst=24.853s reqs=500 ok=500 fail=0 effRPS=2.37                                     
+sender-1  |    - batch 01: K=50 time=23.474s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 02: K=50 time=18.668s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 03: K=50 time=22.775s ok=50 fail=0
+sender-1  |    - batch 04: K=50 time=19.610s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 05: K=50 time=19.007s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 06: K=50 time=17.884s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 07: K=50 time=19.831s ok=50 fail=0
+sender-1  |    - batch 08: K=50 time=21.671s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 09: K=50 time=22.832s ok=50 fail=0                                                                                                                                   
+sender-1  |    - batch 10: K=50 time=24.853s ok=50 fail=0                                                                                                                                   
+sender-1 exited with code 0
+
+traefik
+
+sender-1   | [TRAEFIK_RR] RPS=2.9 p50=1.485s p95=3.428s p99=4.611s n=172 (concurrency=5, target_rps=-, mode=cycle, fails=5)                                              
+sender-1   |    - job A: n=56 p50=2.268s p95=4.498s                                                                                                                      
+sender-1   |    - job B: n=58 p50=1.126s p95=3.343s
+sender-1   |    - job C: n=58 p50=0.589s p95=2.662s 

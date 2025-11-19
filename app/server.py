@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 # Define per-job iterations (tune to your box)
 JOB_ITERS = {
-    "A": 130_000_000,
+    "A": 80_000_000,
     "B": 40_000_000,
     "C": 20_000_000,
     "D": 10_000_000,

@@ -1,0 +1,14 @@
+log:
+  level: INFO
+
+api:
+  dashboard: false
+
+entryPoints:
+  web:
+    address: ":8082"
+
+providers:
+  file:
+    directory: "/etc/traefik/dynamic"
+    watch: true
