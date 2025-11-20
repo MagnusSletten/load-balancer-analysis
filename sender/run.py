@@ -203,7 +203,6 @@ def run_case(name, url):
                     else:
                         in_flight.add(pool.submit(one_call, url, job, t_end))
 
-        # Drain (don’t refill)
         while in_flight:
             done, in_flight = _wait_one(in_flight)
             for f in done:
