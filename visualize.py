@@ -48,7 +48,7 @@ plt.show()
 
 
 
-jobs = ["A", "B", "C"]
+jobs = ["L", "M", "S"]
 
 lc_caddy_p95 = [2.171, 1.100, 0.578]
 lc_nginx_p95 = [2.170, 1.090, 0.571]
@@ -76,7 +76,7 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-jobs = ["A", "B", "C"]
+jobs = ["L", "M", "S"]
 
 lc_caddy_p95 = [2.171, 1.100, 0.578]
 rr_caddy_p95 = [4.486, 4.190, 2.688]
