@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 import os, hashlib, time
+import socket
+import os
 
+hostname = os.getenv("NAME", "app")
 app = Flask(__name__)
 
-# Define per-job iterations (tune to your box)
 JOB_ITERS = {
     "A": 80_000_000,
     "B": 40_000_000,
@@ -42,4 +44,4 @@ def calculate():
     t0 = time.perf_counter()
     do_work(iters)
     elapsed = time.perf_counter() - t0
-    return jsonify({"ok": True, "job": job, "iters": iters, "elapsed_sec": round(elapsed, 4)})
+    return jsonify({"ok": True, "job": job, "iters": iters, "elapsed_sec": round(elapsed, 4), "upstream": hostname })

@@ -37,7 +37,6 @@ WEIGHTS_STR    = os.getenv("JOB_WEIGHTS", "")              # e.g. "A:6,C:3,E:1"
 REQ_TIMEOUT    = float(os.getenv("REQUEST_TIMEOUT_SEC", "120"))
 
 CONCURRENCY    = int(os.getenv("CONCURRENCY", "12"))       # number of requests up at the same time
-TARGET_RPS     = float(os.getenv("TARGET_RPS", "0"))       # 0 = unlimited; else open-loop pacing (req/s)
 
 START_DELAY    = float(os.getenv("START_DELAY_SEC", "6"))  # delay before first run
 COOLDOWN_SEC   = float(os.getenv("COOLDOWN_SEC", "20"))    # wait between LC/RR runs
@@ -52,7 +51,7 @@ BATCH_MIN      = int(os.getenv("BATCH_MIN", "10"))
 BATCH_MAX      = int(os.getenv("BATCH_MAX", "15"))
 BATCH_REQUESTS = int(os.getenv("BATCH_REQUESTS", "0"))     # 0 = use legacy range
 
-CAPTURE_UPSTREAM = int(os.getenv("CAPTURE_UPSTREAM", "0")) # set to 1 if nginx adds X-Upstream header
+CAPTURE_UPSTREAM = int(os.getenv("CAPTURE_UPSTREAM", "0")) # 1 = show upstream docker-name
 
 #Jobs
 JOBS = [j.strip().upper() for j in JOBS_STR.split(",") if j.strip()]
@@ -90,7 +89,6 @@ def make_picker():
             return keys[-1]
         return pick
     else:
-        # deterministic cycle across JOBS
         i = 0
         def pick():
             nonlocal i
@@ -117,7 +115,8 @@ def one_call(url, job, deadline, connect_timeout=2.0, floor=0.25):
         except Exception:
             jj = job
         if CAPTURE_UPSTREAM:
-            return jj, elapsed, True, r.headers.get("X-Upstream")
+            upstream = r.json().get("upstream")   
+            return jj, elapsed, True, upstream
         else:
             return jj, elapsed, True
     except Exception:
@@ -142,7 +141,7 @@ def _print_stream_summary(name, results, per_job, fails, label):
     p50, p95, p99 = pct(results, 0.5), pct(results, 0.95), pct(results, 0.99)
     rps = len(results) / DURATION
     print(f"[{name}] RPS={rps:.1f} p50={p50:.3f}s p95={p95:.3f}s p99={p99:.3f}s n={len(results)} "
-          f"(concurrency={CONCURRENCY}, target_rps={TARGET_RPS or '-'}, mode={MODE}, fails={fails})")
+          f"(concurrency={CONCURRENCY}, mode={MODE}, fails={fails})")
     for job in sorted(per_job.keys()):
         arr = sorted(per_job[job])
         jp50, jp95 = pct(arr, 0.5), pct(arr, 0.95)
@@ -159,8 +158,6 @@ def run_case(name, url):
     fails = 0
 
     t_end = time.perf_counter() + DURATION
-    inter_arrival = (1.0 / TARGET_RPS) if TARGET_RPS > 0 else 0.0
-    next_launch = time.perf_counter()
 
     with ThreadPoolExecutor(max_workers=CONCURRENCY) as pool:
         in_flight = set()
@@ -192,11 +189,6 @@ def run_case(name, url):
 
                 # Refill
                 if time.perf_counter() < t_end:
-                    if inter_arrival > 0:
-                        now = time.perf_counter()
-                        if now < next_launch:
-                            time.sleep(next_launch - now)
-                        next_launch = max(next_launch + inter_arrival, time.perf_counter())
                     job = pick_job()
                     if CAPTURE_UPSTREAM:
                         in_flight.add(pool.submit(one_call, url, job, t_end))
@@ -234,7 +226,7 @@ def run_batched_case(name, url, batches, batch_requests=50, concurrency=10):
 
     batch_times, per_batch_ok, per_batch_fail = [], [], []
     total_ok = total_fail = 0
-
+    upstreams = {}
     for _ in range(batches):
         t0 = time.perf_counter()
         ok = fail = 0
@@ -244,7 +236,12 @@ def run_batched_case(name, url, batches, batch_requests=50, concurrency=10):
             futs = [pool.submit(one_call, url, pick_job(), deadline)
                     for _ in range(batch_requests)]
             for f in as_completed(futs):
-                _, _, success = f.result()
+                if CAPTURE_UPSTREAM:
+                        _, _, success, upstream = f.result()
+                        if success and upstream:
+                            upstreams[upstream] = upstreams.get(upstream, 0) + 1
+                else:
+                    _, _, success = f.result()
                 if success:
                     ok += 1
                 else:
@@ -266,9 +263,10 @@ def run_batched_case(name, url, batches, batch_requests=50, concurrency=10):
 
     print(f"[{name} BATCH] batches={batches} batch_requests={batch_requests} concurrency={concurrency} "
           f"sum={total_sum:.3f}s p50={p50:.3f}s p95={p95:.3f}s worst={worst:.3f}s "
-          f"reqs={total_requests} ok={total_ok} fail={total_fail} effRPS={eff_rps:.2f}")
+          f"reqs={total_requests} ok={total_ok} fail={total_fail} effRPS={eff_rps:.2f} capture-upstreams: {CAPTURE_UPSTREAM or "False"}")
     for idx, (bt, ok, fail) in enumerate(zip(batch_times, per_batch_ok, per_batch_fail), start=1):
         print(f"   - batch {idx:02d}: K={batch_requests} time={bt:.3f}s ok={ok} fail={fail}")
+    print(f"Upstreams: \n {upstreams}")
 
 # Initial warm up establishing connections
 def warmup(url):
@@ -284,7 +282,7 @@ def warmup(url):
 if __name__ == "__main__":
     print(f"DURATION={DURATION}s; jobs={JOBS}; mode={MODE}; "
           f"weights={(W if MODE=='weighted' else '-')}; "
-          f"concurrency={CONCURRENCY}; target_rps={TARGET_RPS or '-'}; timeout={REQ_TIMEOUT}s")
+          f"concurrency={CONCURRENCY}; timeout={REQ_TIMEOUT}s")
     if RUN_BATCH and BATCH_COUNT > 0:
         if BATCH_REQUESTS > 0:
             print(f"BATCH_COUNT={BATCH_COUNT} batch_requests={BATCH_REQUESTS} concurrency={CONCURRENCY}")
@@ -305,10 +303,8 @@ if __name__ == "__main__":
 
         if RUN_BATCH and BATCH_COUNT > 0:
             if BATCH_REQUESTS > 0:
-                # New: fixed total requests per batch (decoupled from concurrency)
                 run_batched_case(name, url, BATCH_COUNT, batch_requests=BATCH_REQUESTS, concurrency=CONCURRENCY)
             else:
-                # Legacy behavior: random K per batch in [BATCH_MIN, BATCH_MAX]
                 for _ in range(BATCH_COUNT):
                     K = random.randint(BATCH_MIN, BATCH_MAX)
                     run_batched_case(name, url, 1, batch_requests=K, concurrency=CONCURRENCY)

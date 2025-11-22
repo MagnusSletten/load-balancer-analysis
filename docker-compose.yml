@@ -5,6 +5,7 @@ services:
     ports: ["8001:8000"]
     environment:
       - GUNICORN_WORKERS=1
+      - NAME="app_1"
  #     - JOB_FACTOR=0.0001 
     deploy:
       resources:
@@ -16,6 +17,7 @@ services:
     expose: ["8000"]
     environment:
       - GUNICORN_WORKERS=1
+      -  NAME="app_2"
   #    - JOB_FACTOR=0.0001 
     deploy:
       resources:
@@ -27,6 +29,7 @@ services:
     expose: ["8000"]
     environment:
       - GUNICORN_WORKERS=1
+      -  NAME="app_3"
    #   - JOB_FACTOR=0.0001 
     deploy:
       resources:
@@ -38,6 +41,7 @@ services:
     expose: ["8000"]
     environment:
       - GUNICORN_WORKERS=1
+      -  NAME="app_4"
     #  - JOB_FACTOR=0.0001      
     deploy:
       resources:
@@ -49,6 +53,7 @@ services:
     expose: ["8000"]
     environment:
       - GUNICORN_WORKERS=1
+      -  NAME="app_5"
     #  - JOB_FACTOR=0.0001
     deploy:
       resources:
@@ -76,14 +81,15 @@ services:
 
   # Traefik: two entrypoints (8082, 8083) mapped to different host ports
   traefik:
-    image: traefik
+    image: traefik:v3.6.2
     depends_on: [app1, app2, app3, app4, app5]
     command:
+      - "--log.level=DEBUG" 
       - "--providers.file.directory=/etc/traefik/dynamic"
       - "--providers.file.watch=true"
       - "--entrypoints.web.address=:8082"
       - "--entrypoints.web2.address=:8083"
-      - "--log.level=INFO"
+      - "--accesslog=true" 
     ports:
       - "10082:8082"  # Traefik entrypoint 1 (e.g. RR/random)
       - "10083:8083"  # Traefik entrypoint 2 (e.g. least-time)
@@ -95,7 +101,6 @@ services:
     build: ./sender
     depends_on: [traefik]
     environment:
-      # right now sender still targets Traefik inside the Docker network
   #    - TARGET_RR_NGINX=http://nginx:8082/calculate
   #    - TARGET_LC_NGINX=http://nginx:8083/calculate
 
@@ -105,15 +110,18 @@ services:
 
       # TRAEFIK
       - TARGET_RR_TRAEFIK=http://traefik:8082/calculate
-      - TARGET_LC_TRAEFIK=http://traefik:8083/calculate
+   #   - TARGET_RR_TRAEFIK_2=http://traefik:8082/calculate
+   #   - TARGET_RR_TRAEFIK_3=http://traefik:8082/calculate
+   #   - TARGET_RR_TRAEFIK_4=http://traefik:8082/calculate
+     # - TARGET_LC_TRAEFIK=http://traefik:8083/calculate
 
-      # You can add more envs if you want to hit nginx/caddy instead:
      #  - TARGET_NGINX_RR=http://nginx:8082/calculate
      #  - TARGET_NGINX_LC=http://nginx:8083/calculate
       # - TARGET_CADDY_RR=http://caddy:8082/calculate
       # - TARGET_CADDY_LC=http://caddy:8083/calculate
 
-      - DURATION_SEC=60
+      - DURATION_SEC=300
+      - CAPTURE_UPSTREAM=1
       - JOB_MODE=cycle
       - JOBS=A,B,C
       - JOB_WEIGHTS=C:6,E:3,A:1
@@ -121,9 +129,9 @@ services:
       - CONCURRENCY=5
       - TARGET_RPS=0
       - JOB_FACTOR=0.0001
-      - RUN_STREAM=1
+      - RUN_STREAM=0
       - RUN_BATCH=1
-      - BATCH_COUNT=10
+      - BATCH_COUNT=30
       - BATCH_REQUESTS=50
       - START_DELAY_SEC=12
       - COOLDOWN_SEC=15

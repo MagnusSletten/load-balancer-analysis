@@ -1,4 +1,3 @@
-# traefik/dynamic.yml
 http:
   routers:
     calculate:
@@ -10,7 +9,6 @@ http:
   services:
     calculate-svc:
       loadBalancer:
-        # <- this is the important bit
         strategy: "leasttime"
         servers:
           - url: "http://app1:8000"

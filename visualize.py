@@ -12,7 +12,7 @@ lc_traefic = [16.718, 19.029, 16.333, 17.857, 17.206, 16.455, 16.918, 19.026, 16
 rr_caddy = [17.488, 20.651, 21.102, 19.109, 19.950,19.123, 21.006, 25.718, 22.189, 22.112]
 
 
-plt.boxplot([lc_caddy,lc_nginx,lc_traefic,rr_caddy],tick_labels=["Caddy LC", "Nginx LC", "Traefik LT", "Caddy RR"])
+plt.boxplot([lc_caddy,lc_nginx,lc_traefic,rr_caddy],tick_labels=["Caddy LC", "Nginx LC", "Traefik LT", "Caddy Random"])
 plt.ylabel("Batch processing time (s)")
 plt.title("Batch Processing Time Distribution")
 plt.show()
