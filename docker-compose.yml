@@ -60,26 +60,24 @@ services:
         limits:
           cpus: "0.50"
 
-#  nginx:
- #   image: nginx:1.27-alpine
- #   depends_on: [app1, app2, app3, app4, app5]
- #   volumes:
-  #    - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  #3  ports:
-  #    - "8082:8082"  # nginx round-robin
-  #    - "8083:8083"  # nginx least-connections
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on: [app1, app2, app3, app4, app5]
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8082:8082"  # nginx random
+      - "8083:8083"  # nginx least-connections
 
-  # Caddy: RR on 9082, LC on 9083 (host ports)
-  #caddy:
-  #  image: caddy:2
-  #  depends_on: [app1, app2, app3, app4, app5]
-  #  volumes:
-  #    - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-   # ports:
-   #   - "9082:8082"  # caddy random / RR
-   #   - "9083:8083"  # caddy LC (or second policy)
+  caddy:
+    image: caddy:2
+    depends_on: [app1, app2, app3, app4, app5]
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    ports:
+      - "9082:8082"  
+      - "9083:8083"  
 
-  # Traefik: two entrypoints (8082, 8083) mapped to different host ports
   traefik:
     image: traefik:v3.6.2
     depends_on: [app1, app2, app3, app4, app5]
@@ -99,26 +97,18 @@ services:
 
   sender:
     build: ./sender
-    depends_on: [traefik]
+    depends_on: [traefik, nginx, caddy]
     environment:
-  #    - TARGET_RR_NGINX=http://nginx:8082/calculate
-  #    - TARGET_LC_NGINX=http://nginx:8083/calculate
+   #    - TARGET_RR_NGINX=http://nginx:8082/calculate
+      - TARGET_LC_NGINX=http://nginx:8083/calculate
 
       # CADDY
  #     - TARGET_RR_CADDY=http://caddy:9082/calculate
  #     - TARGET_LC_CADDY=http://caddy:9083/calculate
 
       # TRAEFIK
-      - TARGET_RR_TRAEFIK=http://traefik:8082/calculate
-   #   - TARGET_RR_TRAEFIK_2=http://traefik:8082/calculate
-   #   - TARGET_RR_TRAEFIK_3=http://traefik:8082/calculate
-   #   - TARGET_RR_TRAEFIK_4=http://traefik:8082/calculate
-     # - TARGET_LC_TRAEFIK=http://traefik:8083/calculate
-
-     #  - TARGET_NGINX_RR=http://nginx:8082/calculate
-     #  - TARGET_NGINX_LC=http://nginx:8083/calculate
-      # - TARGET_CADDY_RR=http://caddy:8082/calculate
-      # - TARGET_CADDY_LC=http://caddy:8083/calculate
+      - TARGET_LT_TRAEFIK=http://traefik:8082/calculate
+    #  - TARGET_LC_TRAEFIK=http://traefik:8083/calculate
 
       - DURATION_SEC=300
       - CAPTURE_UPSTREAM=1
@@ -131,7 +121,7 @@ services:
       - JOB_FACTOR=0.0001
       - RUN_STREAM=0
       - RUN_BATCH=1
-      - BATCH_COUNT=30
+      - BATCH_COUNT=5
       - BATCH_REQUESTS=50
       - START_DELAY_SEC=12
       - COOLDOWN_SEC=15

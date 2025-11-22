@@ -21,7 +21,7 @@ add_target("CADDY_LC", "TARGET_LC_CADDY")
 
 # Traefik
 add_target("TRAEFIK_RR", "TARGET_RR_TRAEFIK")
-add_target("TRAEFIK_LC", "TARGET_LC_TRAEFIK")
+add_target("TRAEFIK_LT", "TARGET_LT_TRAEFIK")
 
 # Fallback defaults if nothing is provided
 if not TARGETS:
