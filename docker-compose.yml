@@ -100,7 +100,7 @@ services:
     depends_on: [traefik, nginx, caddy]
     environment:
    #    - TARGET_RR_NGINX=http://nginx:8082/calculate
-      - TARGET_LC_NGINX=http://nginx:8083/calculate
+     # - TARGET_LC_NGINX=http://nginx:8083/calculate
 
       # CADDY
  #     - TARGET_RR_CADDY=http://caddy:9082/calculate

@@ -1,5 +1,35 @@
 # Minimal test setup to benchmark load-balancers
 
+## Introduction
+
+Most load-balancer benchmarks measure simple round-robin throughput on uniform workloads.  
+This setup is intentionally designed to expose how different algorithms behave under **heterogeneous CPU-bound jobs**, where request costs vary greatly.
+
+Key characteristics:
+
+- **Heterogeneous workloads**  
+  Each request type (A, B, C, …) performs a different amount of CPU work, revealing how load balancers react to uneven job sizes.
+
+- **Strategy-level evaluation**  
+  The test isolates specific LB strategies:
+  - Nginx: random, least-connections  
+  - Caddy: random, least-connections  
+  - Traefik: round-robin, **least-time** (recently introduced)
+  - More strategies can also be added in a trivial way.
+  
+
+
+- **Per-upstream tracking**  
+  Each backend tags itself with its container name (`upstream: app_X`), allowing the benchmark to capture:
+  - how traffic is *actually* distributed  
+  - whether a strategy starves or overfeeds certain upstreams  
+  - how quickly a balancer rebalances after unfair routing
+
+- **Deterministic or weighted job selection**  
+  Useful for testing both consistent cycles and probability-based load patterns.
+
+This makes it easy to compare fairness, stability, and performance across reverse proxies.
+
 ## To start
 
 Running`docker-compose up` will build/pull containers and start them.
