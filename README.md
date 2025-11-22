@@ -1,5 +1,7 @@
 # Minimal test setup to benchmark load-balancers
 
+*Note: This repository is in an early stage of development.*
+
 ## Introduction
 
 Most load-balancer benchmarks measure simple round-robin throughput on uniform workloads.  
