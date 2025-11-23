@@ -35,6 +35,7 @@ This makes it easy to compare fairness, stability, and performance across revers
 ## To start
 
 Running`docker-compose up` will build/pull containers and start them.
+The default configuration runs for about 1.5 minutes before results are reported. 
 
 Un-comment lines in `docker-compose.yml` to test different reverse-proxies/strategies. 
 

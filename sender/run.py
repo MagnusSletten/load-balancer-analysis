@@ -12,15 +12,15 @@ def add_target(name, envvar):
         TARGETS.append((name, url))
 
 # Nginx
-add_target("NGINX_RR", "TARGET_RR_NGINX")
+add_target("NGINX_R", "TARGET_R_NGINX")
 add_target("NGINX_LC", "TARGET_LC_NGINX")
 
 # Caddy
-add_target("CADDY_RR", "TARGET_RR_CADDY")
+add_target("CADDY_R", "TARGET_R_CADDY")
 add_target("CADDY_LC", "TARGET_LC_CADDY")
 
 # Traefik
-add_target("TRAEFIK_RR", "TARGET_RR_TRAEFIK")
+add_target("TRAEFIK_R", "TARGET_R_TRAEFIK")
 add_target("TRAEFIK_LT", "TARGET_LT_TRAEFIK")
 
 # Fallback defaults if nothing is provided
@@ -299,7 +299,7 @@ if __name__ == "__main__":
         if RUN_STREAM:
             run_case(name, url)
 
-        time.sleep(3*START_DELAY)
+        time.sleep(START_DELAY)
 
         if RUN_BATCH and BATCH_COUNT > 0:
             if BATCH_REQUESTS > 0:

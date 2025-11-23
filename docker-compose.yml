@@ -99,12 +99,12 @@ services:
     build: ./sender
     depends_on: [traefik, nginx, caddy]
     environment:
-   #    - TARGET_RR_NGINX=http://nginx:8082/calculate
-     # - TARGET_LC_NGINX=http://nginx:8083/calculate
+     # - TARGET_R_NGINX=http://nginx:8082/calculate    #Random NGinx
+      - TARGET_LC_NGINX=http://nginx:8083/calculate  #Least connections Nginx
 
       # CADDY
- #     - TARGET_RR_CADDY=http://caddy:9082/calculate
- #     - TARGET_LC_CADDY=http://caddy:9083/calculate
+      #- TARGET_R_CADDY=http://caddy:9082/calculate  #Random Caddy
+      # - TARGET_LC_CADDY=http://caddy:9083/calculate #Least connections Caddy
 
       # TRAEFIK
       - TARGET_LT_TRAEFIK=http://traefik:8082/calculate
@@ -121,7 +121,7 @@ services:
       - JOB_FACTOR=0.0001
       - RUN_STREAM=0
       - RUN_BATCH=1
-      - BATCH_COUNT=5
+      - BATCH_COUNT=2
       - BATCH_REQUESTS=50
-      - START_DELAY_SEC=12
-      - COOLDOWN_SEC=15
+      - START_DELAY_SEC=10
+      - COOLDOWN_SEC=5
