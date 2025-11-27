@@ -110,7 +110,7 @@ services:
       - TARGET_LT_TRAEFIK=http://traefik:8082/calculate
     #  - TARGET_LC_TRAEFIK=http://traefik:8083/calculate
 
-      - DURATION_SEC=300
+      - DURATION_SEC=60
       - CAPTURE_UPSTREAM=1
       - JOB_MODE=cycle
       - JOBS=A,B,C
@@ -118,7 +118,6 @@ services:
       - REQUEST_TIMEOUT_SEC=120
       - CONCURRENCY=5
       - TARGET_RPS=0
-      - JOB_FACTOR=0.0001
       - RUN_STREAM=0
       - RUN_BATCH=1
       - BATCH_COUNT=2

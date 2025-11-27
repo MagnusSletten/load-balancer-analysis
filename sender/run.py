@@ -97,34 +97,41 @@ def make_picker():
             return j
         return pick
 
-def one_call(url, job, deadline, connect_timeout=2.0, floor=0.25):
+def one_call(url, job, timeout_s=None, connect_timeout=2.0):
     """
     Fire one request and return (job, latency, ok[, upstream]).
-    Deadline is a perf_counter timestamp; we clamp read timeout to it.
+
+    timeout_s is the *per-request* read timeout (seconds), measured from the
+    moment this function starts running.
     """
+    if timeout_s is None:
+        timeout_s = REQ_TIMEOUT  
     s = get_session()
     t0 = time.perf_counter()
-    remaining = max(floor, deadline - t0)
-    read_timeout = min(remaining, REQ_TIMEOUT)
     try:
-        r = s.get(url, params={"job": job}, timeout=(connect_timeout, read_timeout))
+        # (connect_timeout, read_timeout)
+        r = s.get(url, params={"job": job}, timeout=(connect_timeout, timeout_s))
         r.raise_for_status()
         elapsed = time.perf_counter() - t0
+
         try:
             jj = r.json().get("job") or job
         except Exception:
             jj = job
+
         if CAPTURE_UPSTREAM:
-            upstream = r.json().get("upstream")   
+            upstream = r.json().get("upstream")
+         #   print(f"{upstream} {elapsed} job: {jj}")
             return jj, elapsed, True, upstream
         else:
             return jj, elapsed, True
+
     except Exception:
         if CAPTURE_UPSTREAM:
             return job, time.perf_counter() - t0, False, None
         else:
             return job, time.perf_counter() - t0, False
-
+        
 def _wait_one(futures_set):
     """Wait for exactly one future to complete; return (done_set, remaining_set)."""
     done = set()
@@ -171,6 +178,11 @@ def run_case(name, url):
                 in_flight.add(pool.submit(one_call, url, job, t_end))
 
         # Main loop
+        for _ in range(CONCURRENCY):
+            job = pick_job()
+            in_flight.add(pool.submit(one_call, url, job, REQ_TIMEOUT))
+
+        # Main loop
         while time.perf_counter() < t_end:
             done, in_flight = _wait_one(in_flight)
             for f in done:
@@ -180,20 +192,12 @@ def run_case(name, url):
                     job, lat, ok = f.result()
                     upstream = None
 
-                if ok and time.perf_counter() <= t_end:
-                    results.append(lat); per_job[job].append(lat)
-                    if per_upstream is not None and upstream:
-                        per_upstream[(job, upstream)] += 1
-                elif not ok:
-                    fails += 1
+                ...
 
                 # Refill
                 if time.perf_counter() < t_end:
                     job = pick_job()
-                    if CAPTURE_UPSTREAM:
-                        in_flight.add(pool.submit(one_call, url, job, t_end))
-                    else:
-                        in_flight.add(pool.submit(one_call, url, job, t_end))
+                    in_flight.add(pool.submit(one_call, url, job, REQ_TIMEOUT))
 
         while in_flight:
             done, in_flight = _wait_one(in_flight)
@@ -230,11 +234,12 @@ def run_batched_case(name, url, batches, batch_requests=50, concurrency=10):
     for _ in range(batches):
         t0 = time.perf_counter()
         ok = fail = 0
-        deadline = time.perf_counter() + REQ_TIMEOUT
 
         with ThreadPoolExecutor(max_workers=concurrency) as pool:
-            futs = [pool.submit(one_call, url, pick_job(), deadline)
-                    for _ in range(batch_requests)]
+            futs = [
+                pool.submit(one_call, url, pick_job(), REQ_TIMEOUT)
+                for _ in range(batch_requests)
+            ]
             for f in as_completed(futs):
                 if CAPTURE_UPSTREAM:
                         _, _, success, upstream = f.result()
